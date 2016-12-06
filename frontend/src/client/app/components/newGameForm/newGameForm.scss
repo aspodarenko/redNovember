@@ -1,0 +1,26 @@
+
+
+input.playerName {
+   margin: 0px 10px 10px 10px;
+   width : 90%;
+ }
+
+div.playerName {
+  margin: 10px 10px 10px 10px;
+}
+
+span.label {
+  padding-left: 10px;
+}
+
+.displayError {
+  background-color: rgba(255, 80, 116, 0.91);
+}
+
+.btnDisable
+{
+  cursor: not-allowed;
+  pointer-events: none;
+  color: #c0c0c0;
+  background-color: #ffffff;
+}
