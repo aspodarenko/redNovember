@@ -3,6 +3,7 @@ import commonStyles from '../common/common.scss';
 var React = require('react');
 var classNames = require('classnames/bind');
 var cx = classNames.bind(styles);
+var cxCommon = classNames.bind(commonStyles);
 
 class NewGameForm extends React.Component {
     render() {
@@ -10,7 +11,7 @@ class NewGameForm extends React.Component {
             displayError : this.props.isWrongPlayerName,
             playerName : true
         });
-        let joinGameBtnClasses = cx({
+        let joinGameBtnClasses = cxCommon({
                 btnDisable :  this.props.selectedGameId == undefined,
                 btn : true
             }

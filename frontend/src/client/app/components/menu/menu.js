@@ -26,6 +26,8 @@ class Menu extends React.Component {
         this.joinGameClick = this.joinGameClick.bind(this);
         this.playerNameChangeHandler = this.playerNameChangeHandler.bind(this);
         this.selectedGameChange = this.selectedGameChange.bind(this);
+        this.startGameClick = this.startGameClick.bind(this);
+        this.leftGameClick = this.leftGameClick.bind(this);
     }
 
     componentDidMount() {
@@ -43,6 +45,7 @@ class Menu extends React.Component {
                 });
             });
     }
+
 
     newGameClick(event) {
         event.preventDefault();
@@ -81,7 +84,6 @@ class Menu extends React.Component {
     }
 
     selectedGameChange(gameId){
-        console.log(gameId);
         this.setState({
             selectedGameId : gameId
         });
@@ -111,6 +113,14 @@ class Menu extends React.Component {
         });
     }
 
+    startGameClick(event) {
+
+    }
+
+    leftGameClick(event) {
+
+    }
+
     render() {
         return (
         <div className={styles.menu}>
@@ -120,7 +130,7 @@ class Menu extends React.Component {
                     <span>Available games</span>
                     <MenuList list={this.state.availableGames}
                               selectItem={this.selectedGameChange}
-                              selectedItemId={this.state.selectedGame}/>
+                              selectedItemId={this.state.selectedGameId}/>
                 </div>
                 < NewGameForm newGame={this.newGameClick}
                     joinGame={this.joinGameClick}
@@ -135,7 +145,7 @@ class Menu extends React.Component {
                     <span>Player list</span>
                     <MenuList list={this.state.currentGame.players} selectItem={()=>{}}/>
                 </div>
-                <StartGameForm startGame="" leftGame=""/>
+                <StartGameForm startGame={this.startGameClick} leftGame={this.leftGameClick}/>
             </div>
             }
         </div>
