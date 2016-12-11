@@ -5,10 +5,11 @@ import styles from './menu.scss';
 import MenuList from '../menuList/menuList.js';
 import NewGameForm from '../newGameForm/newGameForm.js';
 import StartGameForm from '../startGameForm/startGameForm.js';
-
+import { newGame } from '../../actions/actions.js'
 
 var React = require('react');
-
+var ReactRedux = require("react-redux");
+var ptypes = React.PropTypes;
 
 class Menu extends React.Component {
     constructor(props) {
@@ -22,6 +23,7 @@ class Menu extends React.Component {
             currentGame : undefined
         };
         // This binding is necessary to make `this` work in the callback
+        this.updateCurrentGame = ptypes.string.isRequired,
         this.newGameClick = this.newGameClick.bind(this);
         this.joinGameClick = this.joinGameClick.bind(this);
         this.playerNameChangeHandler = this.playerNameChangeHandler.bind(this);
@@ -29,6 +31,7 @@ class Menu extends React.Component {
         this.startGameClick = this.startGameClick.bind(this);
         this.leftGameClick = this.leftGameClick.bind(this);
     }
+
 
     componentDidMount() {
         fetch(this.state.serverUrl + '/games')
@@ -71,9 +74,7 @@ class Menu extends React.Component {
             }
             return response.json()
         }).then((game) => {
-                this.setState({
-                    currentGame: game
-                });
+            this.props.updateCurrentGame(game);
             });
     }
 
@@ -107,9 +108,7 @@ class Menu extends React.Component {
             }
             return response.json()
         }).then((game) => {
-            this.setState({
-                currentGame: game
-            });
+            this.props.updateCurrentGame(game);
         });
     }
 
@@ -124,7 +123,7 @@ class Menu extends React.Component {
     render() {
         return (
         <div className={styles.menu}>
-            {this.state.currentGame == undefined &&
+            {this.props.currentGame.id == undefined &&
             <div>
                 <div className={styles.list}>
                     <span>Available games</span>
@@ -139,11 +138,11 @@ class Menu extends React.Component {
                     selectedGameId={this.state.selectedGameId}/>
             </div>
             }
-            {this.state.currentGame != undefined &&
+            {this.props.currentGame.id != undefined &&
             <div>
                 <div className={styles.list}>
                     <span>Player list</span>
-                    <MenuList list={this.state.currentGame.players} selectItem={()=>{}}/>
+                    <MenuList list={this.props.currentGame.players} selectItem={()=>{}}/>
                 </div>
                 <StartGameForm startGame={this.startGameClick} leftGame={this.leftGameClick}/>
             </div>
@@ -153,4 +152,20 @@ class Menu extends React.Component {
     }
 };
 
-export default Menu;
+
+var mapStateToProps = function(state){
+    return {
+        currentGame: state.currentGame
+    };
+};
+
+var mapDispatchToProps = function(dispatch){
+    return {
+        updateCurrentGame: function(game){
+            console.log('eee');
+            dispatch(newGame(game)); },
+    }
+};
+
+
+export default ReactRedux.connect(mapStateToProps, mapDispatchToProps)(Menu);
