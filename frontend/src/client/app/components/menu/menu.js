@@ -5,7 +5,7 @@ import styles from './menu.scss';
 import MenuList from '../menuList/menuList.js';
 import NewGameForm from '../newGameForm/newGameForm.js';
 import StartGameForm from '../startGameForm/startGameForm.js';
-import { newGame } from '../../actions/actions.js'
+import { newGame, createConnection } from '../../actions/actions.js'
 
 var React = require('react');
 var ReactRedux = require("react-redux");
@@ -17,13 +17,12 @@ class Menu extends React.Component {
         this.state = {
             availableGames : [],
             playerName : '',
-            serverUrl : 'http://localhost:8080',
             isWrongPlayerName : false,
             selectedGameId : undefined,
             currentGame : undefined
         };
-        // This binding is necessary to make `this` work in the callback
         this.updateCurrentGame = ptypes.string.isRequired,
+        this.serverMessageHandler = ptypes.string.isRequired,
         this.newGameClick = this.newGameClick.bind(this);
         this.joinGameClick = this.joinGameClick.bind(this);
         this.playerNameChangeHandler = this.playerNameChangeHandler.bind(this);
@@ -34,7 +33,7 @@ class Menu extends React.Component {
 
 
     componentDidMount() {
-        fetch(this.state.serverUrl + '/games')
+        fetch(this.props.serverUrl + '/games')
             .then((response) => {
                 if (response.status !== 200) {
                     console.log('Game server not available' + response.status);
@@ -74,7 +73,8 @@ class Menu extends React.Component {
             }
             return response.json()
         }).then((game) => {
-            this.props.updateCurrentGame(game);
+            this.props.updateCurrentGame(game, game.ownerPlayerId);
+            createConnection(this.props.serverMessageHandler)
             });
     }
 
@@ -107,8 +107,8 @@ class Menu extends React.Component {
                 return;
             }
             return response.json()
-        }).then((game) => {
-            this.props.updateCurrentGame(game);
+        }).then((joinGameResponseDto) => {
+            this.props.updateCurrentGame(joinGameResponseDto.game, joinGameResponseDto.playerId);
         });
     }
 
@@ -123,7 +123,7 @@ class Menu extends React.Component {
     render() {
         return (
         <div className={styles.menu}>
-            {this.props.currentGame.id == undefined &&
+            {this.props.game == undefined &&
             <div>
                 <div className={styles.list}>
                     <span>Available games</span>
@@ -138,11 +138,11 @@ class Menu extends React.Component {
                     selectedGameId={this.state.selectedGameId}/>
             </div>
             }
-            {this.props.currentGame.id != undefined &&
+            {this.props.game != undefined &&
             <div>
                 <div className={styles.list}>
                     <span>Player list</span>
-                    <MenuList list={this.props.currentGame.players} selectItem={()=>{}}/>
+                    <MenuList list={this.props.game.players} selectItem={()=>{}}/>
                 </div>
                 <StartGameForm startGame={this.startGameClick} leftGame={this.leftGameClick}/>
             </div>
@@ -153,17 +153,22 @@ class Menu extends React.Component {
 };
 
 
+
 var mapStateToProps = function(state){
     return {
-        currentGame: state.currentGame
+        game: state.currentGame.game,
+        serverUrl: state.server.serverUrl
     };
 };
 
 var mapDispatchToProps = function(dispatch){
     return {
-        updateCurrentGame: function(game){
-            console.log('eee');
-            dispatch(newGame(game)); },
+        serverMessageHandler: function (message) {
+            dispatch(message);
+        },
+        updateCurrentGame: function (game, playerId) {
+            dispatch(newGame(game, playerId));
+        },
     }
 };
 

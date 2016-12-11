@@ -1,13 +1,13 @@
 package com.red.november.controller;
 
 import com.red.november.pojo.Game;
-import com.red.november.pojo.JoinGameDto;
+import com.red.november.pojo.JoinGameRequestDto;
+import com.red.november.pojo.JoinGameResponseDto;
 import com.red.november.pojo.Player;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.*;
 
 /**
@@ -40,11 +40,11 @@ public class ConnectionController {
 	@Path("joinGame")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Game joinGame(JoinGameDto joinGameDto) {
-		Game gameToJoin = games.get(joinGameDto.getGameId());
+	public JoinGameResponseDto joinGame(JoinGameRequestDto joinGameRequestDto) {
+		Game gameToJoin = games.get(joinGameRequestDto.getGameId());
 		Player player = new Player();
-		player.setName(joinGameDto.getPlayerName());
+		player.setName(joinGameRequestDto.getPlayerName());
 		gameToJoin.getPlayers().add(player);
-		return gameToJoin;
+		return new JoinGameResponseDto(gameToJoin);
 	}
 }

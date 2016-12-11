@@ -5,7 +5,7 @@ import java.util.UUID;
 /**
  * Created by Oleksandr on 12/3/2016.
  */
-public class JoinGameDto {
+public class JoinGameRequestDto {
 
 	private String playerName;
 
