@@ -5,7 +5,7 @@ import styles from './menu.scss';
 import MenuList from '../menuList/menuList.js';
 import NewGameForm from '../newGameForm/newGameForm.js';
 import StartGameForm from '../startGameForm/startGameForm.js';
-import { newGame, createConnection } from '../../actions/actions.js'
+import { newGame, createConnection, leftGame } from '../../actions/actions.js'
 
 var React = require('react');
 var ReactRedux = require("react-redux");
@@ -18,10 +18,9 @@ class Menu extends React.Component {
             availableGames : [],
             playerName : '',
             isWrongPlayerName : false,
-            selectedGameId : undefined,
-            currentGame : undefined
+            selectedGameId : undefined
         };
-        this.updateCurrentGame = ptypes.string.isRequired,
+        this.createGameHandler = ptypes.string.isRequired,
         this.serverMessageHandler = ptypes.string.isRequired,
         this.newGameClick = this.newGameClick.bind(this);
         this.joinGameClick = this.joinGameClick.bind(this);
@@ -73,7 +72,7 @@ class Menu extends React.Component {
             }
             return response.json()
         }).then((game) => {
-            this.props.updateCurrentGame(game, game.ownerPlayerId);
+            this.props.createGameHandler(game, game.ownerPlayerId);
             createConnection(this.props.serverMessageHandler)
             });
     }
@@ -92,6 +91,12 @@ class Menu extends React.Component {
 
     joinGameClick(event) {
         event.preventDefault();
+        if(this.state.playerName.length == 0){
+            this.state.isWrongPlayerName = true;
+            return;
+        } else {
+            this.state.isWrongPlayerName = false;
+        }
         fetch('/joinGame', {
             method: 'POST',
             headers: {
@@ -108,7 +113,8 @@ class Menu extends React.Component {
             }
             return response.json()
         }).then((joinGameResponseDto) => {
-            this.props.updateCurrentGame(joinGameResponseDto.game, joinGameResponseDto.playerId);
+            this.props.createGameHandler(joinGameResponseDto.game, joinGameResponseDto.playerId);
+            createConnection(this.props.serverMessageHandler)
         });
     }
 
@@ -117,7 +123,8 @@ class Menu extends React.Component {
     }
 
     leftGameClick(event) {
-
+        event.preventDefault();
+        this.props.leftGameHandler(this.props.game, this.props.currentPlayerId);
     }
 
     render() {
@@ -157,6 +164,7 @@ class Menu extends React.Component {
 var mapStateToProps = function(state){
     return {
         game: state.currentGame.game,
+        currentPlayerId: state.currentGame.currentPlayerId,
         serverUrl: state.server.serverUrl
     };
 };
@@ -166,9 +174,12 @@ var mapDispatchToProps = function(dispatch){
         serverMessageHandler: function (message) {
             dispatch(message);
         },
-        updateCurrentGame: function (game, playerId) {
+        createGameHandler: function (game, playerId) {
             dispatch(newGame(game, playerId));
         },
+        leftGameHandler : function (gameId, playerId) {
+            dispatch(leftGame(gameId, playerId));
+        }
     }
 };
 

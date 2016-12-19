@@ -1,5 +1,6 @@
 package com.red.november.controller;
 
+import com.red.november.Application;
 import com.red.november.pojo.Game;
 import com.red.november.pojo.JoinGameRequestDto;
 import com.red.november.pojo.JoinGameResponseDto;
@@ -17,13 +18,11 @@ import java.util.*;
 @Path("/")
 public class ConnectionController {
 
-	private Map<String, Game> games = new HashMap<>();
-
 	@GET
 	@Path("games")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Collection<Game> getGameList() {
-		return games.values();
+		return Application.games.values();
 	}
 
 	@POST
@@ -32,7 +31,7 @@ public class ConnectionController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Game createGame(Game game) {
 		game.setOwnerPlayerId(game.getPlayers().iterator().next().getId());
-		games.put(game.getId(), game);
+		Application.games.put(game.getId(), game);
 		return game;
 	}
 
@@ -41,7 +40,7 @@ public class ConnectionController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public JoinGameResponseDto joinGame(JoinGameRequestDto joinGameRequestDto) {
-		Game gameToJoin = games.get(joinGameRequestDto.getGameId());
+		Game gameToJoin = Application.games.get(joinGameRequestDto.getGameId());
 		Player player = new Player();
 		player.setName(joinGameRequestDto.getPlayerName());
 		gameToJoin.getPlayers().add(player);
