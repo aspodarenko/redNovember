@@ -1,31 +1,43 @@
 package com.red.november.websockets;
 
-import javax.websocket.*;
-import javax.websocket.server.ServerEndpoint;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.WebSocketMessage;
+import org.springframework.web.socket.WebSocketSession;
 
 /**
  * Created by Oleksandr on 12/18/2016.
  */
 
-@ServerEndpoint("/actions")
-public class MessageRouter {
 
-	@OnOpen
-	public void onOpen(Session session)  {
+public class MessageRouter implements WebSocketHandler{
+
+	@Override
+	public void afterConnectionEstablished(WebSocketSession session)
+			throws Exception {
 
 	}
 
-	@OnMessage
-	public String handleAction(String message) {
-		return message + " (from your server)";
+	@Override
+	public void handleMessage(WebSocketSession session,
+			WebSocketMessage<?> message) throws Exception {
+
 	}
 
-	@OnError
-	public void onError(Throwable t) {
+	@Override
+	public void handleTransportError(WebSocketSession session,
+			Throwable exception) throws Exception {
+
 	}
 
-	@OnClose
-	public void onClose(Session session) {
+	@Override
+	public void afterConnectionClosed(WebSocketSession session,
+			CloseStatus closeStatus) throws Exception {
 
+	}
+
+	@Override
+	public boolean supportsPartialMessages() {
+		return false;
 	}
 }
