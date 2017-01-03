@@ -72,7 +72,7 @@ class Menu extends React.Component {
             }
             return response.json()
         }).then((game) => {
-            this.props.createGameHandler(game, game.ownerPlayerId);
+            this.props.createGameHandler(game, game.ownerPlayerId, this.props.serverMessageHandler);
             });
     }
 
@@ -112,7 +112,7 @@ class Menu extends React.Component {
             }
             return response.json()
         }).then((joinGameResponseDto) => {
-            this.props.createGameHandler(joinGameResponseDto.game, joinGameResponseDto.playerId);
+            this.props.createGameHandler(joinGameResponseDto.game, joinGameResponseDto.playerId, this.props.serverMessageHandler);
         });
     }
 
@@ -163,7 +163,7 @@ var mapStateToProps = function(state){
     return {
         game: state.currentGame.game,
         currentPlayerId: state.currentGame.currentPlayerId,
-        serverUrl: state.server.serverUrl
+        serverUrl: state.currentGame.serverUrl
     };
 };
 
@@ -174,9 +174,8 @@ var mapDispatchToProps = function(dispatch){
     };
     return {
         serverMessageHandler: serverMessageHandler,
-        createGameHandler: function (game, playerId) {
-            dispatch(newGame(game, playerId));
-            dispatch(createConnection(serverMessageHandler))
+        createGameHandler: function (game, playerId, serverMessageHandler) {
+            dispatch(newGame(game, playerId, serverMessageHandler));
         },
         leftGameHandler : function (gameId, playerId) {
             dispatch(leftGame(gameId, playerId));

@@ -1,16 +1,19 @@
+var SockJS = require('sockjs-client');
 import { combineReducers } from 'redux'
 import {
     CREATE_GAME,
-    CREATE_CONNECTION,
     LEFT_GAME
 } from '../actions/actions.js'
 
-function currentGame(state = {} , action) {
+function currentGame(state = {serverUrl: 'http://localhost:8080'} , action) {
     switch(action.type){
         case CREATE_GAME:
+            let socket = new SockJS(state.serverUrl + '/actions');
+            socket.onmessage = action.handler;
             return Object.assign({}, state, {
                 game : action.game,
-                currentPlayerId : action.currentPlayerId
+                currentPlayerId : action.currentPlayerId,
+                connection : socket
             });
         case LEFT_GAME:
             state.connection.send(JSON.stringify(action));
@@ -21,21 +24,8 @@ function currentGame(state = {} , action) {
     }
 }
 
-function server(state = {serverUrl: 'http://localhost:8080'}, action ) {
-    switch(action.type){
-        case CREATE_CONNECTION:
-            let host = state.serverUrl.substring(7, state.serverUrl.length);
-            let connection = new WebSocket("ws://"+ host + '/actions');
-            connection.onmessage = action.handler;
-            return Object.assign({}, state, {connection : connection});
-        default :
-            return state;
-    }
-}
-
 const rootReducer = combineReducers({
-    currentGame,
-    server
+    currentGame
 })
 
 export default rootReducer

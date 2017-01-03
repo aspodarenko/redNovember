@@ -1,8 +1,7 @@
 export const CREATE_GAME = 'CREATE_GAME'
-export const CREATE_CONNECTION = 'CREATE_CONNECTION'
 export const LEFT_GAME = 'LEFT_GAME'
 
-export function newGame(game, playerId) {
+export function newGame(game, playerId, messageHandler) {
     return {
         type : CREATE_GAME,
         game : game,
@@ -18,9 +17,3 @@ export function leftGame(gameId, playerId) {
     }
 }
 
-export function createConnection(messageHandler) {
-    return {
-        type : CREATE_CONNECTION,
-        handler : messageHandler
-    }
-}
