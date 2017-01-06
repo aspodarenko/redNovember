@@ -1,11 +1,12 @@
 package com.red.november.pojo;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 /**
  * Created by Oleksandr on 11/20/2016.
  */
-public class Player {
+public class Player implements Serializable{
 
 	private String name;
 

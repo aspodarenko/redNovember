@@ -5,7 +5,7 @@ import styles from './menu.scss';
 import MenuList from '../menuList/menuList.js';
 import NewGameForm from '../newGameForm/newGameForm.js';
 import StartGameForm from '../startGameForm/startGameForm.js';
-import { newGame, createConnection, leftGame } from '../../actions/actions.js'
+import { newGame, leftGame, joinGameResponse, gameCreatedResponse, joinGame } from '../../actions/actions.js'
 
 var React = require('react');
 var ReactRedux = require("react-redux");
@@ -21,7 +21,6 @@ class Menu extends React.Component {
             selectedGameId : undefined
         };
         this.createGameHandler = ptypes.string.isRequired,
-        this.serverMessageHandler = ptypes.string.isRequired,
         this.newGameClick = this.newGameClick.bind(this);
         this.joinGameClick = this.joinGameClick.bind(this);
         this.playerNameChangeHandler = this.playerNameChangeHandler.bind(this);
@@ -47,7 +46,6 @@ class Menu extends React.Component {
             });
     }
 
-
     newGameClick(event) {
         event.preventDefault();
         if(this.state.playerName.length == 0){
@@ -56,24 +54,7 @@ class Menu extends React.Component {
         } else {
             this.state.isWrongPlayerName = false;
         }
-        fetch('/newGame', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name : this.state.playerName,
-                players : [{name: this.state.playerName }]
-            })
-        }).then((response) => {
-            if (response.status !== 200) {
-                console.log('Game server not available' + response.status);
-                return;
-            }
-            return response.json()
-        }).then((game) => {
-            this.props.createGameHandler(game, game.ownerPlayerId, this.props.serverMessageHandler);
-            });
+        this.props.createGameHandler(this.state.playerName);
     }
 
     playerNameChangeHandler(event){
@@ -96,24 +77,7 @@ class Menu extends React.Component {
         } else {
             this.state.isWrongPlayerName = false;
         }
-        fetch('/joinGame', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                playerName : this.state.playerName,
-                gameId : this.state.selectedGameId
-            })
-        }).then((response) => {
-            if (response.status !== 200) {
-                console.log('Game server not available' + response.status);
-                return;
-            }
-            return response.json()
-        }).then((joinGameResponseDto) => {
-            this.props.createGameHandler(joinGameResponseDto.game, joinGameResponseDto.playerId, this.props.serverMessageHandler);
-        });
+        this.props.joinGameHandler(this.state.selectedGameId, this.state.playerName);
     }
 
     startGameClick(event) {
@@ -157,8 +121,6 @@ class Menu extends React.Component {
     }
 };
 
-
-
 var mapStateToProps = function(state){
     return {
         game: state.currentGame.game,
@@ -168,14 +130,18 @@ var mapStateToProps = function(state){
 };
 
 var mapDispatchToProps = function(dispatch){
+    var serverMessageHandler = function (message) {dispatch(message);};
 
-    var serverMessageHandler =  function (message) {
-        dispatch(message);
-    };
+    var gameCreatedHandler  = function (newGameServerResponse) {dispatch(gameCreatedResponse(JSON.parse(newGameServerResponse.body)));};
+
+    var joinedGameHandler = function (joinedGameServerResponse) {dispatch(joinGameResponse(JSON.parse(joinedGameServerResponse.body)));};
+
     return {
-        serverMessageHandler: serverMessageHandler,
-        createGameHandler: function (game, playerId, serverMessageHandler) {
-            dispatch(newGame(game, playerId, serverMessageHandler));
+        createGameHandler: function (playerName) {
+            dispatch(newGame(playerName, gameCreatedHandler, joinedGameHandler, serverMessageHandler));
+        },
+        joinGameHandler: function (gameId, playerName) {
+            dispatch(joinGame(gameId, playerName , gameCreatedHandler, joinedGameHandler, serverMessageHandler));
         },
         leftGameHandler : function (gameId, playerId) {
             dispatch(leftGame(gameId, playerId));

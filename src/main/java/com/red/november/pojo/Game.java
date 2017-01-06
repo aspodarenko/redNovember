@@ -1,5 +1,6 @@
 package com.red.november.pojo;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -7,9 +8,7 @@ import java.util.UUID;
 /**
  * Created by Oleksandr on 11/20/2016.
  */
-public class Game {
-
-
+public class Game implements Serializable {
 
 	private String id;
 
