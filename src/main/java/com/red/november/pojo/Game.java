@@ -16,9 +16,12 @@ public class Game implements Serializable {
 
 	private String ownerPlayerId;
 
+	private Boolean started;
+
 	private Set<Player> players = new HashSet<>();
 
 	public Game(){
+		started = false;
 		id = UUID.randomUUID().toString();
 	}
 
@@ -52,5 +55,13 @@ public class Game implements Serializable {
 
 	public void setOwnerPlayerId(String ownerPlayerId) {
 		this.ownerPlayerId = ownerPlayerId;
+	}
+
+	public Boolean getStarted() {
+		return started;
+	}
+
+	public void setStarted(Boolean started) {
+		this.started = started;
 	}
 }

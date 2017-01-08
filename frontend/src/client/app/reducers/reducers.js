@@ -7,7 +7,10 @@ import {
     LEFT_GAME,
     JOIN_GAME,
     CREATE_GAME_RESPONSE,
-    JOIN_GAME_RESPONSE
+    JOIN_GAME_RESPONSE,
+    LEFT_GAME_RESPONSE,
+    START_GAME,
+    START_GAME_RESPONSE
 } from '../actions/actions.js'
 
 
@@ -40,6 +43,20 @@ var joinGameStompClient = function(serverUrl, action){
     return stompClient;
 }
 
+let removePlayer = function (state, playerIdToRemove) {
+    let newGameState = Object.assign({}, state.game);
+    let playerIndex = -1;
+    newGameState.players.forEach((player, index) => {
+        if (player.id == playerIdToRemove) {
+            playerIndex = index;
+        }
+    });
+    if (playerIndex > -1) {
+        newGameState.players.splice(playerIndex, 1);
+    }
+    return newGameState
+};
+
 function currentGame(state = {serverUrl: 'http://localhost:8080'} , action) {
     let stompClient;
     switch(action.type){
@@ -67,17 +84,45 @@ function currentGame(state = {serverUrl: 'http://localhost:8080'} , action) {
                    currentPlayerId : action.game.ownerPlayerId,
             });
         case JOIN_GAME_RESPONSE:
+            let playerId;
+            if(state.currentPlayerId == undefined){
+                playerId = action.joinedGame.newPlayerId;
+            } else {
+                playerId = state.currentPlayerId;
+            }
             return Object.assign({}, state, {
                 game : action.joinedGame.game,
-                currentPlayerId : action.joinedGame.newPlayerId,
+                currentPlayerId : playerId,
             });
         case LEFT_GAME:
-            state.connection.send("/leftGame",JSON.stringify(action));
-            state.connection.close();
+                state.connection.send("/app/leftGame/" + state.game.id, {}, JSON.stringify(action));
+                return Object.assign({}, state, {
+                    game: undefined,
+                    currentPlayerId: undefined
+                });
+        case LEFT_GAME_RESPONSE:
+            if(state.game == undefined || action.playerId == state.game.ownerPlayerId) {
+                state.connection.disconnect();
+                return Object.assign({}, state, {
+                    game: undefined,
+                    availableGames: action.games,
+                    connection: undefined
+                });
+            } else {
+                let newGameState = removePlayer(state, action.playerId);
+                return Object.assign({}, state, {
+                    game: newGameState
+                });
+            }
+        case START_GAME:
+            state.connection.send("/app/startGame/" + state.game.id, {}, JSON.stringify(action));
+            return state;
+        case START_GAME_RESPONSE:
+            let newGameState = Object.assign({}, state.game, {
+                started : true
+            });
             return Object.assign({}, state, {
-                game : undefined,
-                currentPlayerId : undefined,
-                connection : undefined
+                game: newGameState
             });
         default :
             return state;

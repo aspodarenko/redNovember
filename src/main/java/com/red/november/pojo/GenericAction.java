@@ -5,7 +5,7 @@ package com.red.november.pojo;
  */
 public class GenericAction {
 
-	private String type;
+	protected String type;
 
 	private String playerId;
 
@@ -13,6 +13,10 @@ public class GenericAction {
 
 	public String getPlayerId() {
 		return playerId;
+	}
+
+	public String getType() {
+		return type;
 	}
 
 	public void setPlayerId(String playerId) {

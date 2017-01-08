@@ -12,7 +12,6 @@ public class JoinGameResponseDto {
 
 	public JoinGameResponseDto(Game game){
 		this.game = game;
-		newPlayerId = UUID.randomUUID().toString();
 	}
 
 	public Game getGame() {
@@ -30,4 +29,6 @@ public class JoinGameResponseDto {
 	public void setNewPlayerId(String newPlayerId) {
 		this.newPlayerId = newPlayerId;
 	}
+
+
 }

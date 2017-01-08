@@ -5,7 +5,7 @@ import styles from './menu.scss';
 import MenuList from '../menuList/menuList.js';
 import NewGameForm from '../newGameForm/newGameForm.js';
 import StartGameForm from '../startGameForm/startGameForm.js';
-import { newGame, leftGame, joinGameResponse, gameCreatedResponse, joinGame } from '../../actions/actions.js'
+import { newGame, leftGame, joinGameResponse, gameCreatedResponse, joinGame, startGame } from '../../actions/actions.js'
 
 var React = require('react');
 var ReactRedux = require("react-redux");
@@ -31,6 +31,10 @@ class Menu extends React.Component {
 
 
     componentDidMount() {
+        this.refreshGameList();
+    }
+
+    refreshGameList() {
         fetch(this.props.serverUrl + '/games')
             .then((response) => {
                 if (response.status !== 200) {
@@ -81,12 +85,12 @@ class Menu extends React.Component {
     }
 
     startGameClick(event) {
-
+        this.props.startGameHandler(this.props.game.id, this.props.currentPlayerId);
     }
 
     leftGameClick(event) {
         event.preventDefault();
-        this.props.leftGameHandler(this.props.game, this.props.currentPlayerId);
+        this.props.leftGameHandler(this.props.game.id, this.props.currentPlayerId);
     }
 
     render() {
@@ -113,7 +117,8 @@ class Menu extends React.Component {
                     <span>Player list</span>
                     <MenuList list={this.props.game.players} selectItem={()=>{}}/>
                 </div>
-                <StartGameForm startGame={this.startGameClick} leftGame={this.leftGameClick}/>
+                <StartGameForm startGame={this.startGameClick} leftGame={this.leftGameClick}
+                               canStart={this.props.game.ownerPlayerId == this.props.currentPlayerId}/>
             </div>
             }
         </div>
@@ -125,12 +130,13 @@ var mapStateToProps = function(state){
     return {
         game: state.currentGame.game,
         currentPlayerId: state.currentGame.currentPlayerId,
-        serverUrl: state.currentGame.serverUrl
+        serverUrl: state.currentGame.serverUrl,
+        availableGames : state.currentGame.availableGames
     };
 };
 
 var mapDispatchToProps = function(dispatch){
-    var serverMessageHandler = function (message) {dispatch(message);};
+    var serverMessageHandler = function (message) {dispatch((JSON.parse(message.body)))};
 
     var gameCreatedHandler  = function (newGameServerResponse) {dispatch(gameCreatedResponse(JSON.parse(newGameServerResponse.body)));};
 
@@ -145,6 +151,9 @@ var mapDispatchToProps = function(dispatch){
         },
         leftGameHandler : function (gameId, playerId) {
             dispatch(leftGame(gameId, playerId));
+        },
+        startGameHandler : function (gameId, playerId) {
+            dispatch(startGame(gameId, playerId));
         }
     }
 };
